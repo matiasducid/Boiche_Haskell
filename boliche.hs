@@ -24,8 +24,10 @@ member x y =  if null y then False
               else if x == head y then True
               else member x tail y
 
+
+--Anda mal aca, esta comparando un nombre con un cliente el member.
 --Agrega al primer cliente, el segundo cliente
-addFriend (Cliente nombre1 resistencia1 amigos1) (Cliente nombre2 resistencia2 amigos2)
-                                  | nombre1 == nombre2 = (Cliente nombre1 resistencia1 amigos1)
-                                  | member nombre2 amigos1 = (Cliente nombre1 resistencia1 amigos1)
-                                  | not(member) nombre2 amigos1 = (Cliente nombre1 resistencia1 ((Cliente nombre2 resistencia2 amigos2):amigos1))
+--addFriend (Cliente nombre1 resistencia1 amigos1) (Cliente nombre2 resistencia2 amigos2)
+--                                  | nombre1 == nombre2 = (Cliente nombre1 resistencia1 amigos1)
+--                                  | member nombre2 amigos1 = (Cliente nombre1 resistencia1 amigos1)
+--                                  | not(member) nombre2 amigos1 = (Cliente nombre1 resistencia1 ((Cliente nombre2 resistencia2 amigos2):amigos1))
