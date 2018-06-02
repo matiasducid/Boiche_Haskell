@@ -1,28 +1,31 @@
 --defino mi tipo de dato cliente.
-type Cliente=(Edad,Nombre,Resistencia,Amigos)
-type Edad = Int
+
+
+data Persona = Cliente Nombre Resistencia [Persona] deriving(Show)
+--type Edad = Int
 type Nombre = String
 type Resistencia = Int
-type Amigos = [String]
---type Amigos = String
+
+
+rodri = Cliente "rodri" 55 []
+marcos = Cliente "marcos" 40 [rodri]
+cristian = Cliente "cristian" 2 []
+ana = Cliente "Ana" 120 [marcos,rodri]
 
 
 
-drink_grogXD (edad,nombre,resistencia,amigos)= (edad,nombre,0,amigos)
+grogXD (Cliente nombre resistencia amigos)= (Cliente nombre 0 amigos)
 
---new_Cliente(Int,String,Int,[String])
---agrego un nuevo cliente si es mayor a 18 años.
-new_Cliente ::Cliente->Int
---deberia devolver Amigos no un Bool
-new_Cliente (edad,nombre,resitencia,amigos) =
-  if edad >=18 then
-    0
-  else
-    1
---somos_Amigos yo amigo =
-verifico_No_Soy_Yo (_,nombre1,_,_) (_,_,nombre2,_) =
-  nombre1 /= nombre2
+comoEsta (Cliente nombre resistencia amigos)
+                                  | resistencia > 50 = "Esta Fresco"
+                                  | length(amigos)> 1 = "Esta Piola"
+                                  | otherwise = "Esta Duro"
+member x y =  if null y then False
+              else if x == head y then True
+              else member x tail y
 
-add_Friend yo amigo =
-  verifico_No_Soy_Yo yo amigo
---  not(somos_Amigos)
+--Agrega al primer cliente, el segundo cliente
+addFriend (Cliente nombre1 resistencia1 amigos1) (Cliente nombre2 resistencia2 amigos2)
+                                  | nombre1 == nombre2 = (Cliente nombre1 resistencia1 amigos1)
+                                  | member nombre2 amigos1 = (Cliente nombre1 resistencia1 amigos1)
+                                  | not(member) nombre2 amigos1 = (Cliente nombre1 resistencia1 ((Cliente nombre2 resistencia2 amigos2):amigos1))
