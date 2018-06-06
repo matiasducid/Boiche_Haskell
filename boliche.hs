@@ -1,30 +1,31 @@
---defino mi tipo de dato cliente.
 
 import Text.Show.Functions
 
+--defino mi tipo de dato cliente.
 data Persona = Cliente {nombre::String,
                         resistencia::Int,
                         amigos::[Persona],
                         bebidas::[Bebida]} deriving Show
                         -- agregar como dato a cliente.
---Creo que bebidas deberia ser de un tipo de dato Bebida,
---que sean las funciones definidas como grogXD, tintico, etc.
---data Bebida  |seria type
+type Bebida = (Persona->Persona)
+
 --instance Show Persona where
 --  show (Cliente "rodri" _ _) = show "rodri"
 --  show (Cliente "cristian" _ _) = show "cristian"
 --  show (Cliente "marcos" _ _) = show "marcos"
 --  show (Cliente "ana" _ _) = show "ana"
+
 -- No puedo simplificar el mostrar. de este modo no funciona
 
---data Bebida = Bebida (Persona->Persona) | Bebida (Int->Persona->Persona)| Bebida (String->Persona->Persona)
-type Bebida = (Persona->Persona)
 --instance Show Bebida where
 --  show (grogXD) = show "grogXD"
 --  show (jarraLoca) = show "Jarra Loca"
 --  show (klusener) = show "Klusener"
 --  show (tintico) = show "Tintico"
 --  show (soda) = show "Soda"
+
+
+
 rodri = Cliente "rodri" 55 [] [tintico]
 marcos = Cliente "marcos" 40 [rodri] [(klusener "guinda")]
 cristian = Cliente "cristian" 2 [] [grogXD,jarraLoca]
