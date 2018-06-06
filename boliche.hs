@@ -1,33 +1,86 @@
 --defino mi tipo de dato cliente.
 
+import Text.Show.Functions
 
-data Persona = Cliente Nombre Resistencia [Persona] deriving(Show)
---type Edad = Int
-type Nombre = String
-type Resistencia = Int
+data Persona = Cliente {nombre::String,
+                        resistencia::Int,
+                        amigos::[Persona],
+                        bebidas::[Bebida]} deriving Show
+                        -- agregar como dato a cliente.
+--Creo que bebidas deberia ser de un tipo de dato Bebida,
+--que sean las funciones definidas como grogXD, tintico, etc.
+--data Bebida  |seria type
+--instance Show Persona where
+--  show (Cliente "rodri" _ _) = show "rodri"
+--  show (Cliente "cristian" _ _) = show "cristian"
+--  show (Cliente "marcos" _ _) = show "marcos"
+--  show (Cliente "ana" _ _) = show "ana"
+-- No puedo simplificar el mostrar. de este modo no funciona
+
+--data Bebida = Bebida (Persona->Persona) | Bebida (Int->Persona->Persona)| Bebida (String->Persona->Persona)
+type Bebida = (Persona->Persona)
+--instance Show Bebida where
+--  show (grogXD) = show "grogXD"
+--  show (jarraLoca) = show "Jarra Loca"
+--  show (klusener) = show "Klusener"
+--  show (tintico) = show "Tintico"
+--  show (soda) = show "Soda"
+rodri = Cliente "rodri" 55 [] [tintico]
+marcos = Cliente "marcos" 40 [rodri] [(klusener "guinda")]
+cristian = Cliente "cristian" 2 [] [grogXD,jarraLoca]
+ana = Cliente "ana" 120 [marcos,rodri] []
 
 
-rodri = Cliente "rodri" 55 []
-marcos = Cliente "marcos" 40 [rodri]
-cristian = Cliente "cristian" 2 []
-ana = Cliente "Ana" 120 [marcos,rodri]
+grogXD:: Persona->Persona
+grogXD (Cliente nombre resistencia amigos bebidas)= (Cliente nombre 0 amigos (grogXD:bebidas))
 
+quitaDiez:: Persona->Persona
+quitaDiez (Cliente nombre resitencia amigos bebidas)= (Cliente nombre (subtract 10 resitencia) amigos (jarraLoca:bebidas))
+jarraLoca:: Persona->Persona
+jarraLoca (Cliente nombre resistencia amigos bebidas) = quitaDiez (Cliente nombre resistencia (map quitaDiez amigos) bebidas)
 
+klusener:: String->Persona->Persona
+klusener gusto (Cliente nombre resistencia amigos bebidas) = (Cliente nombre (subtract (length gusto) resistencia) amigos ((klusener gusto):bebidas))
 
-grogXD (Cliente nombre resistencia amigos)= (Cliente nombre 0 amigos)
+tintico:: Persona->Persona
+tintico (Cliente nombre resistencia amigos bebidas) = (Cliente nombre (resistencia + ((length amigos)*5)) amigos (tintico:bebidas))
 
-comoEsta (Cliente nombre resistencia amigos)
+soda:: Int->Persona->Persona
+soda fuerza (Cliente nombre resistencia amigos bebidas) = (Cliente ((("e"++(generoR fuerza))++"p") ++ nombre) resistencia amigos ((soda fuerza):bebidas))
+--Genera una cadena de "r" segun el numero que se le pase.
+generoR:: Int->String
+generoR n
+          |n>1  = "r" ++ (generoR (subtract 1 n))
+          |n == 0 = ""
+          |otherwise = "r"
+
+rescatarse:: Int->Persona->Persona
+rescatarse horas (Cliente nombre resistencia amigos bebidas)
+                          | horas > 3 = (Cliente nombre (resistencia + 200) amigos bebidas)
+                          |otherwise = (Cliente nombre (resistencia + 100) amigos bebidas)
+
+comoEsta:: Persona->String
+comoEsta (Cliente nombre resistencia amigos bebidas)
                                   | resistencia > 50 = "Esta Fresco"
                                   | length(amigos)> 1 = "Esta Piola"
                                   | otherwise = "Esta Duro"
-member x y =  if null y then False
-              else if x == head y then True
-              else member x tail y
 
+miembroAmigos:: String->[Persona]->Bool
+miembroAmigos x (cliente:lista) | (null lista) = False
+                                | (nombre cliente) == x = True
+                                | otherwise = miembroAmigos x lista
 
---Anda mal aca, esta comparando un nombre con un cliente el member.
 --Agrega al primer cliente, el segundo cliente
---addFriend (Cliente nombre1 resistencia1 amigos1) (Cliente nombre2 resistencia2 amigos2)
---                                  | nombre1 == nombre2 = (Cliente nombre1 resistencia1 amigos1)
---                                  | member nombre2 amigos1 = (Cliente nombre1 resistencia1 amigos1)
---                                  | not(member) nombre2 amigos1 = (Cliente nombre1 resistencia1 ((Cliente nombre2 resistencia2 amigos2):amigos1))
+--Anda mal, no sirve para cuando no tienen amigos. tercer regla (not (null (amigos cliente)) = ...)
+--  si ya lo tiene como amigo, lo agrega, esta mal eso.
+addFriend:: Persona->Persona->Persona
+addFriend cliente nuevo_amigo
+                                  | nombre cliente == nombre nuevo_amigo = cliente --veo si no soy yo
+                                  | (miembroAmigos (nombre nuevo_amigo) (amigos cliente)) = cliente --veo si es amigo mio previamente
+                                  | (not (null (amigos cliente))) && (not(miembroAmigos (nombre nuevo_amigo) (amigos cliente))) = (Cliente (nombre cliente) (resistencia cliente) (nuevo_amigo:(amigos cliente)) (bebidas cliente))
+beber:: Persona->Bebida->Persona
+beber cliente bebida = bebida cliente
+
+tomarTragos::Persona->[Bebida]->Persona
+tomarTragos cliente listaTragos |(not (null listaTragos))= tomarTragos (beber cliente (head listaTragos)) (tail listaTragos)
+                                | null listaTragos = cliente
