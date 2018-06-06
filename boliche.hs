@@ -75,12 +75,25 @@ miembroAmigos x (cliente:lista) | (null lista) = False
 --  si ya lo tiene como amigo, lo agrega, esta mal eso.
 addFriend:: Persona->Persona->Persona
 addFriend cliente nuevo_amigo
-                                  | nombre cliente == nombre nuevo_amigo = cliente --veo si no soy yo
-                                  | (miembroAmigos (nombre nuevo_amigo) (amigos cliente)) = cliente --veo si es amigo mio previamente
-                                  | (not (null (amigos cliente))) && (not(miembroAmigos (nombre nuevo_amigo) (amigos cliente))) = (Cliente (nombre cliente) (resistencia cliente) (nuevo_amigo:(amigos cliente)) (bebidas cliente))
+                          | nombre cliente == nombre nuevo_amigo = cliente --veo si no soy yo
+                          | (miembroAmigos (nombre nuevo_amigo) (amigos cliente)) = cliente --veo si es amigo mio | esta agregando el amigo aunque lo tenga, pero solo 1 vez, luego no lo agrega.
+                          | (not (null (amigos cliente))) && (not(miembroAmigos (nombre nuevo_amigo) (amigos cliente))) = (Cliente (nombre cliente) (resistencia cliente) (nuevo_amigo:(amigos cliente)) (bebidas cliente))
+
 beber:: Persona->Bebida->Persona
 beber cliente bebida = bebida cliente
 
 tomarTragos::Persona->[Bebida]->Persona
 tomarTragos cliente listaTragos |(not (null listaTragos))= tomarTragos (beber cliente (head listaTragos)) (tail listaTragos)
                                 | null listaTragos = cliente
+dameOtro:: Persona->Persona
+dameOtro cliente = beber cliente (last (bebidas cliente))
+
+
+
+--calcularTrago:: Persona->Bebida->[Bebida]
+--calcularTrago cliente trago | ((resitencia (trago cliente)) >0) = [trago]
+--                            | otherwise = []
+--cualesPuedeTomar:: Persona->[Bebida]->[Bebida]
+--cualesPuedeTomar cliente listaTragos
+--                          | (resitencia cliente) == 0 = []
+--                          | (resitencia cliente) > 0 = calcularTrago cliente (head listaTragos)
