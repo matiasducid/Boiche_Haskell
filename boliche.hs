@@ -1,4 +1,6 @@
 
+-- Primera Parte
+
 import Text.Show.Functions
 
 --defino mi tipo de dato cliente.
@@ -8,7 +10,7 @@ data Persona = Cliente {nombre::String,
                         bebidas::[Bebida]} deriving Show
                         -- agregar como dato a cliente.
 type Bebida = (Persona->Persona)
-
+type Accion = (Persona->Persona)
 --instance Show Persona where
 --  show (Cliente "rodri" _ _) = show "rodri"
 --  show (Cliente "cristian" _ _) = show "cristian"
@@ -24,13 +26,11 @@ type Bebida = (Persona->Persona)
 --  show (tintico) = show "Tintico"
 --  show (soda) = show "Soda"
 
-
-
 rodri = Cliente "rodri" 55 [] [tintico]
 marcos = Cliente "marcos" 40 [rodri] [(klusener "guinda")]
 cristian = Cliente "cristian" 2 [] [grogXD,jarraLoca]
 ana = Cliente "ana" 120 [marcos,rodri] []
-
+roberto_carlos = Cliente "roberto carlos" 165 [] []
 
 grogXD:: Persona->Persona
 grogXD (Cliente nombre resistencia amigos bebidas)= (Cliente nombre 0 amigos (grogXD:bebidas))
@@ -71,14 +71,28 @@ miembroAmigos x (cliente:lista) | (null lista) = False
                                 | (nombre cliente) == x = True
                                 | otherwise = miembroAmigos x lista
 
+
+
+--yaSomosAmigos nuevo_amigo cliente = cliente
+--not (yaSomosAmigos nuevo_amigo cliente) = (Cliente (nombre cliente) (resitencia cliente) (nuevo_amigo:(amigos cliente)) (bebidas cliente))
+
+--yaSomosAmigos amigo cliente
+--                            | null (amigos cliente) = False
+--                            | (nombre amigo) == (nombre (head (amigos cliente))) = True
+--                            | (nombre amigo) /= (nombre (head (amigos cliente))) = yaSomosAmigos amigo (tail cliente)
+
 --Agrega al primer cliente, el segundo cliente
---Anda mal, no sirve para cuando no tienen amigos. tercer regla (not (null (amigos cliente)) = ...)
---  si ya lo tiene como amigo, lo agrega, esta mal eso.
+--Anda mal, si ya lo tiene como amigo, lo agrega, esta mal eso.
 addFriend:: Persona->Persona->Persona
-addFriend cliente nuevo_amigo
-                          | nombre cliente == nombre nuevo_amigo = cliente --veo si no soy yo
-                          | (miembroAmigos (nombre nuevo_amigo) (amigos cliente)) = cliente --veo si es amigo mio | esta agregando el amigo aunque lo tenga, pero solo 1 vez, luego no lo agrega.
+addFriend nuevo_amigo cliente
+                          | ((nombre cliente) == (nombre nuevo_amigo)) = cliente --veo si no soy yo
+                          | (length (amigos cliente)) == 0 = (Cliente (nombre cliente) (resistencia cliente) [nuevo_amigo] (bebidas cliente))
+                          | (miembroAmigos (nombre nuevo_amigo) (amigos cliente))= cliente --veo si es amigo mio | esta agregando el amigo aunque lo tenga, pero solo 1 vez, luego no lo agrega.
                           | (not (null (amigos cliente))) && (not(miembroAmigos (nombre nuevo_amigo) (amigos cliente))) = (Cliente (nombre cliente) (resistencia cliente) (nuevo_amigo:(amigos cliente)) (bebidas cliente))
+
+--(miembroAmigos (nombre nuevo_amigo) (amigos cliente))
+
+--Segunda Parte
 
 --Funcion que hace a un cliente beber un trago.
 beber:: Persona->Bebida->Persona
@@ -119,6 +133,15 @@ contar cliente tragos
                     | otherwise = (contarRecursivo cliente (head tragos): contar cliente (tail tragos))
 --Funcion que define la cantidad de tragos que puede tomar dada una lista de tragos
 --pincha con tintico y soda.
-cuantasPuedoTomar cliente tragos
+cuantasPuedeTomar cliente tragos
                                 | null tragos = []
                                 | not (null tragos) = contar cliente (cualesPuedeTomar cliente tragos)
+
+data Itinerario = Itinerario {nombreItinerario::String,
+                              duracion::Float,
+                              accion::[Accion]} deriving Show
+
+
+mezclaExplosiva = (Itinerario "mezcla Explosiva" 2.5 [grogXD,grogXD,(klusener "huevo"),(klusener "frutilla")])
+basico = (Itinerario "basico" 5 [grogXD,jarraLoca,(klusener "huevo"),(klusener "chocolate"), tintico, (soda 10),(soda 0)])
+salidaDeAmigos = (Itinerario "salida de amigos" 1 [(soda 1),tintico,(addFriend roberto_carlos),jarraLoca])
