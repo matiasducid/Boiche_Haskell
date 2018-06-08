@@ -80,26 +80,31 @@ addFriend cliente nuevo_amigo
                           | (miembroAmigos (nombre nuevo_amigo) (amigos cliente)) = cliente --veo si es amigo mio | esta agregando el amigo aunque lo tenga, pero solo 1 vez, luego no lo agrega.
                           | (not (null (amigos cliente))) && (not(miembroAmigos (nombre nuevo_amigo) (amigos cliente))) = (Cliente (nombre cliente) (resistencia cliente) (nuevo_amigo:(amigos cliente)) (bebidas cliente))
 
+--Funcion que hace a un cliente beber un trago.
 beber:: Persona->Bebida->Persona
 beber cliente bebida = bebida cliente
 
+--Funcion que hace tomar una lista de tragos a un cliente.
 tomarTragos::Persona->[Bebida]->Persona
 tomarTragos cliente listaTragos |(not (null listaTragos))= tomarTragos (beber cliente (head listaTragos)) (tail listaTragos)
                                 | null listaTragos = cliente
+
+--Funcion que hace tomar el ultimo trago tomado a un cliente.
 dameOtro:: Persona->Persona
 dameOtro cliente = beber cliente (last (bebidas cliente))
 
-
-
-
-
-
+--Funcion que define si un cliente puede tomar una bebida sin quedarse con 0 puntos de resistencia.
+puedoTomar:: Persona->Bebida->Bool
 puedoTomar cliente trago  | (resistencia (trago cliente)) >0 = True
                           | otherwise = False
 
+--Funcion que define si se puede tomar una bebida y llama a otra funcion para tomar el resto de las bebidas dada una lista de tragos.
+calcularTragos:: Persona->[Bebida]->[Bebida]
 calcularTragos cliente tragos | puedoTomar cliente (head tragos) = ((head tragos):cualesPuedeTomar cliente (tail tragos))
                               | otherwise = (cualesPuedeTomar cliente (tail tragos))
 
+--Funcion que define cuales tragos puede tomar un cliente dada una lista de tragos.
+cualesPuedeTomar:: Persona->[Bebida]->[Bebida]
 cualesPuedeTomar cliente tragos | null tragos = []
                                 | not(null tragos) = calcularTragos cliente tragos
                                 | not(puedoTomar cliente (head tragos)) =  []
