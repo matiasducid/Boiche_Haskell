@@ -91,10 +91,15 @@ dameOtro cliente = beber cliente (last (bebidas cliente))
 
 
 
---calcularTrago:: Persona->Bebida->[Bebida]
---calcularTrago cliente trago | ((resitencia (trago cliente)) >0) = [trago]
---                            | otherwise = []
---cualesPuedeTomar:: Persona->[Bebida]->[Bebida]
---cualesPuedeTomar cliente listaTragos
---                          | (resitencia cliente) == 0 = []
---                          | (resitencia cliente) > 0 = calcularTrago cliente (head listaTragos)
+
+
+
+puedoTomar cliente trago  | (resistencia (trago cliente)) >0 = True
+                          | otherwise = False
+
+calcularTragos cliente tragos | puedoTomar cliente (head tragos) = ((head tragos):cualesPuedeTomar cliente (tail tragos))
+                              | otherwise = (cualesPuedeTomar cliente (tail tragos))
+
+cualesPuedeTomar cliente tragos | null tragos = []
+                                | not(null tragos) = calcularTragos cliente tragos
+                                | not(puedoTomar cliente (head tragos)) =  []
