@@ -108,3 +108,17 @@ cualesPuedeTomar:: Persona->[Bebida]->[Bebida]
 cualesPuedeTomar cliente tragos | null tragos = []
                                 | not(null tragos) = calcularTragos cliente tragos
                                 | not(puedoTomar cliente (head tragos)) =  []
+
+--Funcion que cuenta de manera recursiva cada trago y lo va contando.
+contarRecursivo cliente trago
+                            | puedoTomar cliente trago = 1 + (contarRecursivo (trago cliente) trago)
+                            | not(puedoTomar cliente trago) = 0
+--Funcion que hace el verdadero conteo de la cantidad de tragos a tomar.
+contar cliente tragos
+                    | null tragos = []
+                    | otherwise = (contarRecursivo cliente (head tragos): contar cliente (tail tragos))
+--Funcion que define la cantidad de tragos que puede tomar dada una lista de tragos
+--pincha con tintico y soda.
+cuantasPuedoTomar cliente tragos
+                                | null tragos = []
+                                | not (null tragos) = contar cliente (cualesPuedeTomar cliente tragos)
