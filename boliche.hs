@@ -23,11 +23,11 @@ type Accion = (Persona->Persona)
 --  show (tintico) = show "Tintico"
 --  show (soda) = show "Soda"
 
-rodri = Cliente "rodri" 55 [] [tintico]
-marcos = Cliente "marcos" 40 [rodri] [(klusener "guinda")]
-cristian = Cliente "cristian" 2 [] [grogXD,jarraLoca]
-ana = Cliente "ana" 120 [marcos,rodri] []
-robertoCarlos = Cliente "roberto carlos" 165 [] []
+rodri = Cliente "Rodri" 55 [] [tintico]
+marcos = Cliente "Marcos" 40 [rodri] [(klusener "guinda")]
+cristian = Cliente "Cristian" 2 [] [grogXD,jarraLoca]
+ana = Cliente "Ana" 120 [marcos,rodri] []
+robertoCarlos = Cliente "Roberto Carlos" 165 [] []
 
 grogXD:: Persona->Persona
 grogXD (Cliente nombre resistencia amigos bebidas)= (Cliente nombre 0 amigos (grogXD:bebidas))
@@ -135,7 +135,6 @@ data Itinerario = Itinerario {nombreItinerario::String, duracion::Float, accione
 --Defino los 3 itinerrarios mezclaExplosiva,itinerarioBasico y salidaDeAmigos.
 mezclaExplosiva = (Itinerario "mezcla Explosiva" 2.5 [grogXD,grogXD,(klusener "huevo"),(klusener "frutilla")])
 itinerarioBasico = (Itinerario "basico" 5 [grogXD,jarraLoca,(klusener "huevo"),(klusener "chocolate"), tintico, (soda 10),(soda 0)])
--- [FALLA]Me toma en el "hacerItinerario" como que roberto es una bebida que se toma el "tomarTragos"
 salidaDeAmigos = (Itinerario "salida de amigos" 1 [(soda 1),tintico,(addFriend robertoCarlos),jarraLoca])
 
 --hacerItinerario2 cliente itinerario = foldl cliente (acciones itinerario)
@@ -157,7 +156,7 @@ itinerarioMasIntenso listaItinerarios
 hacerItinerarioMasIntenso cliente listaItinerarios = hacerItinerario cliente (itinerarioMasIntenso listaItinerarios)
 
 
---[FALLA] Esta mal la parte del map, deja una lista de clientes, tiene que devolver cliente a cliente.
+--[FALLA] el foldl, me esta devolviendo un cliente que se agrega a el mismo.
 agregarUnNivel espirituosidad cliente
                             | espirituosidad == 0 = cliente
                             | otherwise = agregarUnNivel (subtract 1 espirituosidad) (Cliente (nombre cliente) (resistencia cliente) ((foldl addFriend2 cliente (amigos cliente)):amigos cliente) (bebidas cliente))
@@ -165,3 +164,13 @@ agregarUnNivel espirituosidad cliente
 jarraPopular espirituosidad cliente
                               | espirituosidad == 0 = cliente
                               | otherwise = agregarUnNivel espirituosidad cliente
+
+
+
+--ARREGLAR JARRA POPULAR____
+
+-- TEST OBJETIVO 1D (5) NO DA BIEN
+
+-- TEST OBJETIVO 4A (3) NO DA 0.8, DA 1.4
+
+-- TEST OBJETIVO 5B | 5C FALLAN NO ANDA BIEN JARRAPOPULAR 
