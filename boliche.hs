@@ -1,6 +1,6 @@
 
 -- Primera Parte
-
+import Data.List
 import Text.Show.Functions
 
 --defino mi tipo de dato cliente.
@@ -12,7 +12,7 @@ data Persona = Cliente {nombre::String,
 type Bebida = (Persona->Persona)
 type Accion = (Persona->Persona)
 --instance Show Persona where
---  show (Cliente "rodri" _ _) = show "rodri"
+--  show Cliente rodri = show "rodri"
 --  show (Cliente "cristian" _ _) = show "cristian"
 --  show (Cliente "marcos" _ _) = show "marcos"
 --  show (Cliente "ana" _ _) = show "ana"
@@ -30,7 +30,7 @@ rodri = Cliente "rodri" 55 [] [tintico]
 marcos = Cliente "marcos" 40 [rodri] [(klusener "guinda")]
 cristian = Cliente "cristian" 2 [] [grogXD,jarraLoca]
 ana = Cliente "ana" 120 [marcos,rodri] []
-roberto_carlos = Cliente "roberto carlos" 165 [] []
+robertoCarlos = Cliente "roberto carlos" 165 [] []
 
 grogXD:: Persona->Persona
 grogXD (Cliente nombre resistencia amigos bebidas)= (Cliente nombre 0 amigos (grogXD:bebidas))
@@ -81,14 +81,22 @@ miembroAmigos x (cliente:lista) | (null lista) = False
 --                            | (nombre amigo) == (nombre (head (amigos cliente))) = True
 --                            | (nombre amigo) /= (nombre (head (amigos cliente))) = yaSomosAmigos amigo (tail cliente)
 
---Agrega al primer cliente, el segundo cliente
---Anda mal, si ya lo tiene como amigo, lo agrega, esta mal eso.
+--Agrega al primer cliente, el segundo cliente elem
+--[FALLA]Anda mal, si ya lo tiene como amigo, lo agrega, esta mal eso.
 addFriend:: Persona->Persona->Persona
 addFriend nuevo_amigo cliente
                           | ((nombre cliente) == (nombre nuevo_amigo)) = cliente --veo si no soy yo
                           | (length (amigos cliente)) == 0 = (Cliente (nombre cliente) (resistencia cliente) [nuevo_amigo] (bebidas cliente))
                           | (miembroAmigos (nombre nuevo_amigo) (amigos cliente))= cliente --veo si es amigo mio | esta agregando el amigo aunque lo tenga, pero solo 1 vez, luego no lo agrega.
                           | (not (null (amigos cliente))) && (not(miembroAmigos (nombre nuevo_amigo) (amigos cliente))) = (Cliente (nombre cliente) (resistencia cliente) (nuevo_amigo:(amigos cliente)) (bebidas cliente))
+
+addFriend2 cliente nuevo_amigo
+                          | ((nombre cliente) == (nombre nuevo_amigo)) = cliente --veo si no soy yo
+                          | (length (amigos cliente)) == 0 = (Cliente (nombre cliente) (resistencia cliente) [nuevo_amigo] (bebidas cliente))
+                          | (miembroAmigos (nombre nuevo_amigo) (amigos cliente))= cliente --veo si es amigo mio | esta agregando el amigo aunque lo tenga, pero solo 1 vez, luego no lo agrega.
+                          | (not (null (amigos cliente))) && (not(miembroAmigos (nombre nuevo_amigo) (amigos cliente))) = (Cliente (nombre cliente) (resistencia cliente) (nuevo_amigo:(amigos cliente)) (bebidas cliente))
+
+
 
 --(miembroAmigos (nombre nuevo_amigo) (amigos cliente))
 
@@ -132,16 +140,37 @@ contar cliente tragos
                     | null tragos = []
                     | otherwise = (contarRecursivo cliente (head tragos): contar cliente (tail tragos))
 --Funcion que define la cantidad de tragos que puede tomar dada una lista de tragos
---pincha con tintico y soda.
+--[FALLA]pincha con tintico y soda.
 cuantasPuedeTomar cliente tragos
                                 | null tragos = []
                                 | not (null tragos) = contar cliente (cualesPuedeTomar cliente tragos)
 
+--Defino el tipo de dato itinerario
 data Itinerario = Itinerario {nombreItinerario::String,
                               duracion::Float,
-                              accion::[Accion]} deriving Show
+                              acciones::[Accion]} deriving Show
 
-
+--Defino los 3 itinerrarios mezclaExplosiva,itinerarioBasico y salidaDeAmigos.
 mezclaExplosiva = (Itinerario "mezcla Explosiva" 2.5 [grogXD,grogXD,(klusener "huevo"),(klusener "frutilla")])
-basico = (Itinerario "basico" 5 [grogXD,jarraLoca,(klusener "huevo"),(klusener "chocolate"), tintico, (soda 10),(soda 0)])
-salidaDeAmigos = (Itinerario "salida de amigos" 1 [(soda 1),tintico,(addFriend roberto_carlos),jarraLoca])
+itinerarioBasico = (Itinerario "basico" 5 [grogXD,jarraLoca,(klusener "huevo"),(klusener "chocolate"), tintico, (soda 10),(soda 0)])
+-- [FALLA]Me toma en el "hacerItinerario" como que roberto es una bebida que se toma el "tomarTragos"
+salidaDeAmigos = (Itinerario "salida de amigos" 1 [(soda 1),tintico,(addFriend robertoCarlos),jarraLoca])
+
+hacerItinerario cliente itinerario = tomarTragos cliente (acciones itinerario)
+
+intensidad2 itinerario = genericLength (acciones itinerario) / (duracion itinerario)
+intensidad itinerario = fromRational ((toRational ( length (acciones itinerario)) / realToFrac(duracion itinerario)))
+
+--[FALTA] Seleccionar de una lista de itinerarios el mas intenso.
+--ordenarlo por intensidad
+
+
+
+
+
+--[FALLA] Esta mal la parte del map, deja una lista de clientes, tiene que devolver cliente a cliente.
+--agregarUnNivel espirotuosidad cliente = agregarUnNivel (subtract 1 espirotuosidad) (Cliente (nombre cliente) (resistencia cliente) ((map (addFriend2 cliente) (amigos cliente)):amigos cliente) (bebidas cliente))
+
+--jarraPopular espirotuosidad cliente
+--                              | espirotuosidad == 0 = cliente
+--                              | espirotuosidad > 0 = agregarUnNivel espirotuosidad cliente
