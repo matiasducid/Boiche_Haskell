@@ -1,13 +1,10 @@
-
--- Primera Parte
 import Data.List
 import Text.Show.Functions
 
+-- Primera Parte________________________________________________________________________________________________________
+
 --defino mi tipo de dato cliente.
-data Persona = Cliente {nombre::String,
-                        resistencia::Int,
-                        amigos::[Persona],
-                        bebidas::[Bebida]} deriving Show
+data Persona = Cliente {nombre::String, resistencia::Int, amigos::[Persona], bebidas::[Bebida]} deriving Show
                         -- agregar como dato a cliente.
 type Bebida = (Persona->Persona)
 type Accion = (Persona->Persona)
@@ -71,36 +68,24 @@ miembroAmigos x (cliente:lista) | (null lista) = False
                                 | (nombre cliente) == x = True
                                 | otherwise = miembroAmigos x lista
 
+obtenerNombres listaClientes
+                            | null listaClientes = []
+                            | otherwise = ((nombre (head listaClientes)):obtenerNombres (tail listaClientes))
 
 
---yaSomosAmigos nuevo_amigo cliente = cliente
---not (yaSomosAmigos nuevo_amigo cliente) = (Cliente (nombre cliente) (resitencia cliente) (nuevo_amigo:(amigos cliente)) (bebidas cliente))
-
---yaSomosAmigos amigo cliente
---                            | null (amigos cliente) = False
---                            | (nombre amigo) == (nombre (head (amigos cliente))) = True
---                            | (nombre amigo) /= (nombre (head (amigos cliente))) = yaSomosAmigos amigo (tail cliente)
-
---Agrega al primer cliente, el segundo cliente elem
---[FALLA]Anda mal, si ya lo tiene como amigo, lo agrega, esta mal eso.
 addFriend:: Persona->Persona->Persona
 addFriend nuevo_amigo cliente
                           | ((nombre cliente) == (nombre nuevo_amigo)) = cliente --veo si no soy yo
                           | (length (amigos cliente)) == 0 = (Cliente (nombre cliente) (resistencia cliente) [nuevo_amigo] (bebidas cliente))
-                          | (miembroAmigos (nombre nuevo_amigo) (amigos cliente))= cliente --veo si es amigo mio | esta agregando el amigo aunque lo tenga, pero solo 1 vez, luego no lo agrega.
-                          | (not (null (amigos cliente))) && (not(miembroAmigos (nombre nuevo_amigo) (amigos cliente))) = (Cliente (nombre cliente) (resistencia cliente) (nuevo_amigo:(amigos cliente)) (bebidas cliente))
+                          |  elem (nombre nuevo_amigo) (obtenerNombres (amigos cliente))= cliente --veo si es amigo mio | esta agregando el amigo aunque lo tenga, pero solo 1 vez, luego no lo agrega.
 
 addFriend2 cliente nuevo_amigo
                           | ((nombre cliente) == (nombre nuevo_amigo)) = cliente --veo si no soy yo
                           | (length (amigos cliente)) == 0 = (Cliente (nombre cliente) (resistencia cliente) [nuevo_amigo] (bebidas cliente))
-                          | (miembroAmigos (nombre nuevo_amigo) (amigos cliente))= cliente --veo si es amigo mio | esta agregando el amigo aunque lo tenga, pero solo 1 vez, luego no lo agrega.
-                          | (not (null (amigos cliente))) && (not(miembroAmigos (nombre nuevo_amigo) (amigos cliente))) = (Cliente (nombre cliente) (resistencia cliente) (nuevo_amigo:(amigos cliente)) (bebidas cliente))
+                          |  elem (nombre nuevo_amigo) (obtenerNombres (amigos cliente))= cliente --veo si es amigo mio | esta agregando el amigo aunque lo tenga, pero solo 1 vez, luego no lo agrega.
 
 
-
---(miembroAmigos (nombre nuevo_amigo) (amigos cliente))
-
---Segunda Parte
+--Segunda Parte____________________________________________________________________________________________________________________
 
 --Funcion que hace a un cliente beber un trago.
 beber:: Persona->Bebida->Persona
@@ -141,14 +126,11 @@ contar cliente tragos
                     | otherwise = (contarRecursivo cliente (head tragos): contar cliente (tail tragos))
 --Funcion que define la cantidad de tragos que puede tomar dada una lista de tragos
 --[FALLA]pincha con tintico y soda.
-cuantasPuedeTomar cliente tragos
-                                | null tragos = []
-                                | not (null tragos) = contar cliente (cualesPuedeTomar cliente tragos)
-
+cuantasPuedeTomar:: Num a => Persona->[Bebida]->a
+cuantasPuedeTomar cliente tragos = genericLength (cualesPuedeTomar cliente tragos)
 --Defino el tipo de dato itinerario
-data Itinerario = Itinerario {nombreItinerario::String,
-                              duracion::Float,
-                              acciones::[Accion]} deriving Show
+
+data Itinerario = Itinerario {nombreItinerario::String, duracion::Float, acciones::[Accion]} deriving Show
 
 --Defino los 3 itinerrarios mezclaExplosiva,itinerarioBasico y salidaDeAmigos.
 mezclaExplosiva = (Itinerario "mezcla Explosiva" 2.5 [grogXD,grogXD,(klusener "huevo"),(klusener "frutilla")])
