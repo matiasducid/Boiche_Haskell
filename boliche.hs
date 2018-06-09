@@ -93,7 +93,8 @@ beber cliente bebida = bebida cliente
 
 --Funcion que hace tomar una lista de tragos a un cliente.
 tomarTragos::Persona->[Bebida]->Persona
-tomarTragos cliente listaTragos |(not (null listaTragos))= tomarTragos (beber cliente (head listaTragos)) (tail listaTragos)
+tomarTragos cliente listaTragos
+                                |(not (null listaTragos))= tomarTragos (beber cliente (head listaTragos)) (tail listaTragos)
                                 | null listaTragos = cliente
 
 --Funcion que hace tomar el ultimo trago tomado a un cliente.
@@ -125,7 +126,6 @@ contar cliente tragos
                     | null tragos = []
                     | otherwise = (contarRecursivo cliente (head tragos): contar cliente (tail tragos))
 --Funcion que define la cantidad de tragos que puede tomar dada una lista de tragos
---[FALLA]pincha con tintico y soda.
 cuantasPuedeTomar:: Num a => Persona->[Bebida]->a
 cuantasPuedeTomar cliente tragos = genericLength (cualesPuedeTomar cliente tragos)
 --Defino el tipo de dato itinerario
@@ -138,21 +138,30 @@ itinerarioBasico = (Itinerario "basico" 5 [grogXD,jarraLoca,(klusener "huevo"),(
 -- [FALLA]Me toma en el "hacerItinerario" como que roberto es una bebida que se toma el "tomarTragos"
 salidaDeAmigos = (Itinerario "salida de amigos" 1 [(soda 1),tintico,(addFriend robertoCarlos),jarraLoca])
 
+--hacerItinerario2 cliente itinerario = foldl cliente (acciones itinerario)
 hacerItinerario cliente itinerario = tomarTragos cliente (acciones itinerario)
 
 intensidad2 itinerario = genericLength (acciones itinerario) / (duracion itinerario)
 intensidad itinerario = fromRational ((toRational ( length (acciones itinerario)) / realToFrac(duracion itinerario)))
 
---[FALTA] Seleccionar de una lista de itinerarios el mas intenso.
---ordenarlo por intensidad
 
+obtenerItinerarioMasIntenso itinerarioMasIntensoViejo itinerariosRestantes
+                              | null itinerariosRestantes  = itinerarioMasIntensoViejo
+                              | (intensidad itinerarioMasIntensoViejo) < (intensidad (head itinerariosRestantes)) = obtenerItinerarioMasIntenso (head itinerariosRestantes) (tail itinerariosRestantes)
+                              | (intensidad itinerarioMasIntensoViejo) >= (intensidad (head itinerariosRestantes)) = obtenerItinerarioMasIntenso itinerarioMasIntensoViejo (tail itinerariosRestantes)
+--Funcion que obtiene el itinerario mas intenso a partir de una lista de itinerarios
+--Precondicion que la lista no sea vacia.
+itinerarioMasIntenso listaItinerarios
+                              | not (null listaItinerarios)= obtenerItinerarioMasIntenso (head listaItinerarios) (tail listaItinerarios)
 
-
+hacerItinerarioMasIntenso cliente listaItinerarios = hacerItinerario cliente (itinerarioMasIntenso listaItinerarios)
 
 
 --[FALLA] Esta mal la parte del map, deja una lista de clientes, tiene que devolver cliente a cliente.
---agregarUnNivel espirotuosidad cliente = agregarUnNivel (subtract 1 espirotuosidad) (Cliente (nombre cliente) (resistencia cliente) ((map (addFriend2 cliente) (amigos cliente)):amigos cliente) (bebidas cliente))
+agregarUnNivel espirituosidad cliente
+                            | espirituosidad == 0 = cliente
+                            | otherwise = agregarUnNivel (subtract 1 espirituosidad) (Cliente (nombre cliente) (resistencia cliente) ((foldl addFriend2 cliente (amigos cliente)):amigos cliente) (bebidas cliente))
 
---jarraPopular espirotuosidad cliente
---                              | espirotuosidad == 0 = cliente
---                              | espirotuosidad > 0 = agregarUnNivel espirotuosidad cliente
+jarraPopular espirituosidad cliente
+                              | espirituosidad == 0 = cliente
+                              | otherwise = agregarUnNivel espirituosidad cliente
