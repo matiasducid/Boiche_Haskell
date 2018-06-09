@@ -10,9 +10,10 @@ type Bebida = (Persona->Persona)
 type Accion = (Persona->Persona)
 --instance Show Persona where
 --  show Cliente rodri = show "rodri"
---  show (Cliente "cristian" _ _) = show "cristian"
---  show (Cliente "marcos" _ _) = show "marcos"
---  show (Cliente "ana" _ _) = show "ana"
+--  show Cliente cristian = show "cristian"
+--  show Cliente marcos = show "marcos"
+--  show Cliente ana = show "ana"
+--  show Cliente robertoCarlos = show "roberto carlos"
 
 -- No puedo simplificar el mostrar. de este modo no funciona
 
@@ -173,4 +174,4 @@ jarraPopular espirituosidad cliente
 
 -- TEST OBJETIVO 4A (3) NO DA 0.8, DA 1.4
 
--- TEST OBJETIVO 5B | 5C FALLAN NO ANDA BIEN JARRAPOPULAR 
+-- TEST OBJETIVO 5B | 5C FALLAN NO ANDA BIEN JARRAPOPULAR
