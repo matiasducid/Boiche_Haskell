@@ -8,21 +8,24 @@ data Persona = Cliente {nombre::String, resistencia::Int, amigos::[Persona], beb
                         -- agregar como dato a cliente.
 type Bebida = (Persona->Persona)
 type Accion = (Persona->Persona)
+
 --instance Show Persona where
---  show Cliente rodri = show "rodri"
---  show Cliente cristian = show "cristian"
---  show Cliente marcos = show "marcos"
---  show Cliente ana = show "ana"
---  show Cliente robertoCarlos = show "roberto carlos"
+--  show rodri = (nombre rodri) ++ " tomó: " ++ show (bebidas rodri) ++ ", resistencia " ++ show (resistencia rodri) ++ ", amigos: " ++ show (map nombre (amigos rodri))
+--  show cristian = (nombre cristian) ++ " tomó: " ++ show (bebidas cristian) ++ ", resistencia " ++ show (resistencia cristian) ++ ", amigos: " ++ show (map nombre (amigos cristian))
+--  show ana = (nombre ana) ++ " tomó: " ++ show (bebidas ana) ++ ", resistencia " ++ show (resistencia ana) ++ ", amigos: " ++ show (map nombre (amigos ana))
+--  show marcos = (nombre marcos) ++ " tomó: " ++ show (bebidas marcos) ++ ", resistencia " ++ show (resistencia marcos) ++ ", amigos: " ++ show (map nombre (amigos marcos))
+--  show robertoCarlos = (nombre robertoCarlos) ++ " tomó: " ++ show (bebidas robertoCarlos) ++ ", resitencia " ++ show (resistencia robertoCarlos) ++ ", amigos: " ++ show (map nombre (amigos robertoCarlos))
 
 -- No puedo simplificar el mostrar. de este modo no funciona
 
+--data Bebida = grogXD | jarraLoca | klusener {sabor::String} | tintico | soda {fuerza::Int} | jarraPopular {espirituosidad::Int}
 --instance Show Bebida where
---  show (grogXD) = show "grogXD"
---  show (jarraLoca) = show "Jarra Loca"
---  show (klusener) = show "Klusener"
---  show (tintico) = show "Tintico"
---  show (soda) = show "Soda"
+--  show grogXD = "grogXD"
+--  show jarraLoca = "Jarra Loca"
+--  show tintico = "Tintico"
+--  show (klusener sabor) = ("Klusener de "++ sabor)
+--  show (soda fuerza) = ("Soda con fuerza de " ++ show(fuerza))
+--  show (jarraPopular espirituosidad) = ("Jarra Popular de  espirituosidad " ++ show (espirituosidad))
 
 rodri = Cliente "Rodri" 55 [] [tintico]
 marcos = Cliente "Marcos" 40 [rodri] [(klusener "guinda")]
@@ -79,12 +82,12 @@ addFriend nuevo_amigo cliente
                           | ((nombre cliente) == (nombre nuevo_amigo)) = cliente --veo si no soy yo
                           | (length (amigos cliente)) == 0 = (Cliente (nombre cliente) (resistencia cliente) [nuevo_amigo] (bebidas cliente))
                           |  elem (nombre nuevo_amigo) (obtenerNombres (amigos cliente))= cliente --veo si es amigo mio | esta agregando el amigo aunque lo tenga, pero solo 1 vez, luego no lo agrega.
-
+                          | (not (elem (nombre nuevo_amigo) ((obtenerNombres) (amigos cliente) ) ))= (Cliente (nombre cliente) (resistencia cliente) (nuevo_amigo:(amigos cliente)) (bebidas cliente))
 addFriend2 cliente nuevo_amigo
                           | ((nombre cliente) == (nombre nuevo_amigo)) = cliente --veo si no soy yo
                           | (length (amigos cliente)) == 0 = (Cliente (nombre cliente) (resistencia cliente) [nuevo_amigo] (bebidas cliente))
                           |  elem (nombre nuevo_amigo) (obtenerNombres (amigos cliente))= cliente --veo si es amigo mio | esta agregando el amigo aunque lo tenga, pero solo 1 vez, luego no lo agrega.
-
+                          | (not (elem (nombre nuevo_amigo) ((obtenerNombres) (amigos cliente) ) ))= (Cliente (nombre cliente) (resistencia cliente) (nuevo_amigo:(amigos cliente)) (bebidas cliente))
 
 --Segunda Parte____________________________________________________________________________________________________________________
 
@@ -156,15 +159,40 @@ itinerarioMasIntenso listaItinerarios
 
 hacerItinerarioMasIntenso cliente listaItinerarios = hacerItinerario cliente (itinerarioMasIntenso listaItinerarios)
 
+--[FALLA] no esta agregando los amigos.
+--version anterior agregaba recursivamente, peor aún.
+--agregarUnNivel espirituosidad cliente = jarraPopular (subtract 1 espirituosidad) (foldl addFriend2 cliente (amigos cliente))
 
---[FALLA] el foldl, me esta devolviendo un cliente que se agrega a el mismo.
-agregarUnNivel espirituosidad cliente
-                            | espirituosidad == 0 = cliente
-                            | otherwise = agregarUnNivel (subtract 1 espirituosidad) (Cliente (nombre cliente) (resistencia cliente) ((foldl addFriend2 cliente (amigos cliente)):amigos cliente) (bebidas cliente))
+
+
+
+
+
+
+
+
+
+unificarLista:: [[Persona]]->[Persona]
+unificarLista listaDeListas
+                      | not (null (tail listaDeListas)) = ((head listaDeListas) ++ unificarLista (tail listaDeListas))
+                      |otherwise = (head listaDeListas)
+
+
+formarListaRecursivo clientes
+                          | not (null clientes) =  (amigos  (head clientes)): formarListaRecursivo (tail clientes)
+                          | otherwise = []
+
+formarListaAmigosDeMisAmigos cliente = formarListaRecursivo (amigos cliente)
 
 jarraPopular espirituosidad cliente
                               | espirituosidad == 0 = cliente
-                              | otherwise = agregarUnNivel espirituosidad cliente
+                              | otherwise = jarraPopular (subtract 1 espirituosidad) (foldl addFriend2 cliente  (unificarLista (formarListaAmigosDeMisAmigos cliente))) 
+
+
+
+
+
+
 
 
 
