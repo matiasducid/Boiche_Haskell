@@ -9,18 +9,15 @@ data Persona = Cliente {
                         resistencia::Int,
                         amigos::[Persona],
                         bebidas::[Bebida] }
-                        -- agregar como dato a cliente.
 
---data Bebida =
---  grogXD
---  | jarraLoca
---  | klusener {sabor::String}
---  | tintico
---  | soda {fuerza::Int}
---  | jarraPopular {espirituosidad::Int}
+data Bebida =
+  GrogXD
+  | JarraLoca
+  | Klusener {sabor::String}
+  | Tintico
+  | Soda {fuerza::Int}
+  | JarraPopular {espirituosidad::Int}
 
-
-type Bebida = (Persona->Persona)
 type Accion = (Persona->Persona)
 
 instance Show Persona where
@@ -32,41 +29,28 @@ instance Show Persona where
     ++ show (resistencia cliente)
     ++ ", amigos: "
     ++ show (map nombre (amigos cliente))
+    ++ " resistencias respectivas "
+    ++ show (map resistencia (amigos cliente))
 
--- No puedo simplificar el mostrar. de este modo no funciona
+instance Show Bebida where
+    show GrogXD = "GrogXD"
+    show JarraLoca = "Jarra Loca"
+    show (Klusener sabor) = ("Klusener de " ++ sabor)
+    show Tintico = "Tintico"
+    show (Soda fuerza) = ("Soda de fuerza " ++ show(fuerza))
+    show (JarraPopular espirituosidad) =
+         ("Jarra popular de espirituosidad " ++ show(espirituosidad))
 
-
-
-
---tomar GrogXD persona (Cliente nombre _ amigos bebidas) = (Cliente nombre 0 amigos (GrogXD:bebidas_tomadas))
-
-
-
-
-
-rodri = Cliente "Rodri" 55 [] [tintico]
-marcos = Cliente "Marcos" 40 [rodri] [(klusener "guinda")]
-cristian = Cliente "Cristian" 2 [] [grogXD,jarraLoca]
+rodri = Cliente "Rodri" 55 [] [Tintico]
+marcos = Cliente "Marcos" 40 [rodri] [(Klusener "guinda")]
+cristian = Cliente "Cristian" 2 [] [GrogXD,JarraLoca]
 ana = Cliente "Ana" 120 [marcos,rodri] []
 robertoCarlos = Cliente "Roberto Carlos" 165 [] []
 
-grogXD:: Persona->Persona
-grogXD (Cliente nombre resistencia amigos bebidas)= (Cliente nombre 0 amigos (grogXD:bebidas))
 
 quitaDiez:: Persona->Persona
-quitaDiez (Cliente nombre resitencia amigos bebidas)= (Cliente nombre (subtract 10 resitencia) amigos (jarraLoca:bebidas))
-jarraLoca:: Persona->Persona
-jarraLoca (Cliente nombre resistencia amigos bebidas) = quitaDiez (Cliente nombre resistencia (map quitaDiez amigos) bebidas)
+quitaDiez (Cliente nombre resitencia amigos bebidas)= (Cliente nombre (subtract 10 resitencia) amigos (JarraLoca:bebidas))
 
-klusener:: String->Persona->Persona
-klusener gusto (Cliente nombre resistencia amigos bebidas) = (Cliente nombre (subtract (length gusto) resistencia) amigos ((klusener gusto):bebidas))
-
-tintico:: Persona->Persona
-tintico (Cliente nombre resistencia amigos bebidas) = (Cliente nombre (resistencia + ((length amigos)*5)) amigos (tintico:bebidas))
-
-soda:: Int->Persona->Persona
-soda fuerza (Cliente nombre resistencia amigos bebidas) = (Cliente ((("e"++(generoR fuerza))++"p") ++ nombre) resistencia amigos ((soda fuerza):bebidas))
---Genera una cadena de "r" segun el numero que se le pase.
 generoR:: Int->String
 generoR n
           |n>1  = "r" ++ (generoR (subtract 1 n))
@@ -100,23 +84,25 @@ addFriend nuevo_amigo cliente
                           | (length (amigos cliente)) == 0 = (Cliente (nombre cliente) (resistencia cliente) [nuevo_amigo] (bebidas cliente))
                           |  elem (nombre nuevo_amigo) (obtenerNombres (amigos cliente))= cliente --veo si es amigo mio | esta agregando el amigo aunque lo tenga, pero solo 1 vez, luego no lo agrega.
                           | (not (elem (nombre nuevo_amigo) ((obtenerNombres) (amigos cliente) ) ))= (Cliente (nombre cliente) (resistencia cliente) (nuevo_amigo:(amigos cliente)) (bebidas cliente))
-addFriend2 cliente nuevo_amigo
-                          | ((nombre cliente) == (nombre nuevo_amigo)) = cliente --veo si no soy yo
-                          | (length (amigos cliente)) == 0 = (Cliente (nombre cliente) (resistencia cliente) [nuevo_amigo] (bebidas cliente))
-                          |  elem (nombre nuevo_amigo) (obtenerNombres (amigos cliente))= cliente --veo si es amigo mio | esta agregando el amigo aunque lo tenga, pero solo 1 vez, luego no lo agrega.
-                          | (not (elem (nombre nuevo_amigo) ((obtenerNombres) (amigos cliente) ) ))= (Cliente (nombre cliente) (resistencia cliente) (nuevo_amigo:(amigos cliente)) (bebidas cliente))
 
 
---tomar grogXD cliente = Cliente (nombre cliente) 0 (amigos cliente) (grogXD:(bebidas cliente))
 
---tomar
+tomar GrogXD (Cliente nombre _ amigos bebidas) = Cliente nombre 0 amigos (GrogXD:bebidas)
+tomar JarraLoca (Cliente nombre resistencia amigos bebidas) = quitaDiez (Cliente nombre resistencia (map quitaDiez amigos) bebidas)
+tomar (Klusener gusto) (Cliente nombre resistencia amigos bebidas) = (Cliente nombre (subtract (length gusto) resistencia) amigos ((Klusener gusto):bebidas))
+tomar Tintico (Cliente nombre resistencia amigos bebidas) = (Cliente nombre (resistencia + ((length amigos)*5)) amigos (Tintico:bebidas))
+tomar (Soda fuerza) (Cliente nombre resistencia amigos bebidas) = (Cliente ((("e"++(generoR fuerza))++"p") ++ nombre) resistencia amigos ((Soda fuerza):bebidas))
+tomar (JarraPopular espirituosidad) cliente
+                              | espirituosidad == 0 = cliente
+                              | not (null (amigos cliente)) = tomar (JarraPopular (subtract 1 espirituosidad)) (foldl (flip addFriend) cliente  (unificarLista (formarListaAmigosDeMisAmigos cliente)))
+                              | otherwise = cliente
 
 
 --Segunda Parte____________________________________________________________________________________________________________________
 
 --Funcion que hace a un cliente beber un trago.
 beber:: Persona->Bebida->Persona
-beber cliente bebida = bebida cliente
+beber cliente bebida = tomar bebida cliente
 
 --Funcion que hace tomar una lista de tragos a un cliente.
 tomarTragos::Persona->[Bebida]->Persona
@@ -126,11 +112,11 @@ tomarTragos cliente listaTragos
 
 --Funcion que hace tomar el ultimo trago tomado a un cliente.
 dameOtro:: Persona->Persona
-dameOtro cliente = beber cliente (last (bebidas cliente))
+dameOtro cliente = beber cliente (head (bebidas cliente))
 
 --Funcion que define si un cliente puede tomar una bebida sin quedarse con 0 puntos de resistencia.
 puedoTomar:: Persona->Bebida->Bool
-puedoTomar cliente trago  | (resistencia (trago cliente)) >0 = True
+puedoTomar cliente trago  | (resistencia (tomar trago cliente)) >0 = True
                           | otherwise = False
 
 --Funcion que define si se puede tomar una bebida y llama a otra funcion para tomar el resto de las bebidas dada una lista de tragos.
@@ -143,32 +129,40 @@ cualesPuedeTomar:: Persona->[Bebida]->[Bebida]
 cualesPuedeTomar cliente tragos | null tragos = []
                                 | not(null tragos) = calcularTragos cliente tragos
                                 | not(puedoTomar cliente (head tragos)) =  []
-
---Funcion que cuenta de manera recursiva cada trago y lo va contando.
-contarRecursivo cliente trago
-                            | puedoTomar cliente trago = 1 + (contarRecursivo (trago cliente) trago)
-                            | not(puedoTomar cliente trago) = 0
---Funcion que hace el verdadero conteo de la cantidad de tragos a tomar.
-contar cliente tragos
-                    | null tragos = []
-                    | otherwise = (contarRecursivo cliente (head tragos): contar cliente (tail tragos))
 --Funcion que define la cantidad de tragos que puede tomar dada una lista de tragos
 cuantasPuedeTomar:: Num a => Persona->[Bebida]->a
 cuantasPuedeTomar cliente tragos = genericLength (cualesPuedeTomar cliente tragos)
 --Defino el tipo de dato itinerario
 
-data Itinerario = Itinerario {nombreItinerario::String, duracion::Float, acciones::[Accion]} deriving Show
+data Itinerario = Itinerario { nombreItinerario::String,
+                               duracion::Float,
+                               acciones::[Accion] }
+
+instance Show Itinerario where
+  show itinerario = "Itinerario: "
+                    ++ show (nombreItinerario itinerario)
+                    ++ " Tiene una duración de "
+                    ++ show (duracion itinerario)
+                    ++ " horas, y sus acciones son: "
+                    ++ show (acciones itinerario)
 
 --Defino los 3 itinerrarios mezclaExplosiva,itinerarioBasico y salidaDeAmigos.
-mezclaExplosiva = (Itinerario "mezcla Explosiva" 2.5 [grogXD,grogXD,(klusener "huevo"),(klusener "frutilla")])
-itinerarioBasico = (Itinerario "basico" 5 [grogXD,jarraLoca,(klusener "huevo"),(klusener "chocolate"), tintico, (soda 10),(soda 0)])
-salidaDeAmigos = (Itinerario "salida de amigos" 1 [(soda 1),tintico,(addFriend robertoCarlos),jarraLoca])
+mezclaExplosiva = (Itinerario "mezcla Explosiva" 2.5 [(tomar GrogXD),(tomar GrogXD),(tomar (Klusener "huevo")),(tomar (Klusener "frutilla"))])
+itinerarioBasico = (Itinerario "basico" 5 [(tomar JarraLoca),(tomar (Klusener "chocolate")), (rescatarse 2), (tomar (Klusener "huevo"))])
+salidaDeAmigos = (Itinerario "salida de amigos" 1 [(tomar (Soda 1)),(tomar Tintico),(addFriend robertoCarlos),(tomar JarraLoca)])
 
---hacerItinerario2 cliente itinerario = foldl cliente (acciones itinerario)
-hacerItinerario cliente itinerario = tomarTragos cliente (acciones itinerario)
 
-intensidad2 itinerario = genericLength (acciones itinerario) / (duracion itinerario)
-intensidad itinerario = fromRational ((toRational ( length (acciones itinerario)) / realToFrac(duracion itinerario)))
+--hacerItinerario cliente itinerario = tomarTragos cliente (acciones itinerario)
+--hacerItinerario:: Persona->Itinerario->Persona
+hacerItinerario cliente itinerario = hacerAcciones cliente (acciones itinerario)
+--hacerAcciones:: Persona->[Accion]->Persona
+hacerAcciones cliente acciones
+                            | null acciones = cliente
+                            | not (null acciones) = hacerAcciones ((head acciones) cliente) (tail acciones)
+
+
+intensidad itinerario = genericLength (acciones itinerario) / (duracion itinerario)
+--intensidad itinerario = fromRational ((toRational ( length (acciones itinerario)) / realToFrac(duracion itinerario)))
 
 
 obtenerItinerarioMasIntenso itinerarioMasIntensoViejo itinerariosRestantes
@@ -182,18 +176,6 @@ itinerarioMasIntenso listaItinerarios
 
 hacerItinerarioMasIntenso cliente listaItinerarios = hacerItinerario cliente (itinerarioMasIntenso listaItinerarios)
 
---[FALLA] no esta agregando los amigos.
---version anterior agregaba recursivamente, peor aún.
---agregarUnNivel espirituosidad cliente = jarraPopular (subtract 1 espirituosidad) (foldl addFriend2 cliente (amigos cliente))
-
-
-
-
-
-
-
-
-
 
 unificarLista:: [[Persona]]->[Persona]
 unificarLista listaDeListas
@@ -206,11 +188,6 @@ formarListaRecursivo clientes
                           | otherwise = []
 
 formarListaAmigosDeMisAmigos cliente = formarListaRecursivo (amigos cliente)
-
-jarraPopular espirituosidad cliente
-                              | espirituosidad == 0 = cliente
-                              | otherwise = jarraPopular (subtract 1 espirituosidad) (foldl (flip addFriend) cliente  (unificarLista (formarListaAmigosDeMisAmigos cliente)))
-
 
 
 
