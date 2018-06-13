@@ -4,28 +4,45 @@ import Text.Show.Functions
 -- Primera Parte________________________________________________________________________________________________________
 
 --defino mi tipo de dato cliente.
-data Persona = Cliente {nombre::String, resistencia::Int, amigos::[Persona], bebidas::[Bebida]} deriving Show
+data Persona = Cliente {
+                        nombre::String,
+                        resistencia::Int,
+                        amigos::[Persona],
+                        bebidas::[Bebida] }
                         -- agregar como dato a cliente.
+
+--data Bebida =
+--  grogXD
+--  | jarraLoca
+--  | klusener {sabor::String}
+--  | tintico
+--  | soda {fuerza::Int}
+--  | jarraPopular {espirituosidad::Int}
+
+
 type Bebida = (Persona->Persona)
 type Accion = (Persona->Persona)
 
---instance Show Persona where
---  show rodri = (nombre rodri) ++ " tomó: " ++ show (bebidas rodri) ++ ", resistencia " ++ show (resistencia rodri) ++ ", amigos: " ++ show (map nombre (amigos rodri))
---  show cristian = (nombre cristian) ++ " tomó: " ++ show (bebidas cristian) ++ ", resistencia " ++ show (resistencia cristian) ++ ", amigos: " ++ show (map nombre (amigos cristian))
---  show ana = (nombre ana) ++ " tomó: " ++ show (bebidas ana) ++ ", resistencia " ++ show (resistencia ana) ++ ", amigos: " ++ show (map nombre (amigos ana))
---  show marcos = (nombre marcos) ++ " tomó: " ++ show (bebidas marcos) ++ ", resistencia " ++ show (resistencia marcos) ++ ", amigos: " ++ show (map nombre (amigos marcos))
---  show robertoCarlos = (nombre robertoCarlos) ++ " tomó: " ++ show (bebidas robertoCarlos) ++ ", resitencia " ++ show (resistencia robertoCarlos) ++ ", amigos: " ++ show (map nombre (amigos robertoCarlos))
+instance Show Persona where
+  show cliente =
+    nombre cliente
+    ++ " tomó: "
+    ++ show (bebidas cliente)
+    ++ ", resistencia "
+    ++ show (resistencia cliente)
+    ++ ", amigos: "
+    ++ show (map nombre (amigos cliente))
 
 -- No puedo simplificar el mostrar. de este modo no funciona
 
---data Bebida = grogXD | jarraLoca | klusener {sabor::String} | tintico | soda {fuerza::Int} | jarraPopular {espirituosidad::Int}
---instance Show Bebida where
---  show grogXD = "grogXD"
---  show jarraLoca = "Jarra Loca"
---  show tintico = "Tintico"
---  show (klusener sabor) = ("Klusener de "++ sabor)
---  show (soda fuerza) = ("Soda con fuerza de " ++ show(fuerza))
---  show (jarraPopular espirituosidad) = ("Jarra Popular de  espirituosidad " ++ show (espirituosidad))
+
+
+
+--tomar GrogXD persona (Cliente nombre _ amigos bebidas) = (Cliente nombre 0 amigos (GrogXD:bebidas_tomadas))
+
+
+
+
 
 rodri = Cliente "Rodri" 55 [] [tintico]
 marcos = Cliente "Marcos" 40 [rodri] [(klusener "guinda")]
@@ -88,6 +105,12 @@ addFriend2 cliente nuevo_amigo
                           | (length (amigos cliente)) == 0 = (Cliente (nombre cliente) (resistencia cliente) [nuevo_amigo] (bebidas cliente))
                           |  elem (nombre nuevo_amigo) (obtenerNombres (amigos cliente))= cliente --veo si es amigo mio | esta agregando el amigo aunque lo tenga, pero solo 1 vez, luego no lo agrega.
                           | (not (elem (nombre nuevo_amigo) ((obtenerNombres) (amigos cliente) ) ))= (Cliente (nombre cliente) (resistencia cliente) (nuevo_amigo:(amigos cliente)) (bebidas cliente))
+
+
+--tomar grogXD cliente = Cliente (nombre cliente) 0 (amigos cliente) (grogXD:(bebidas cliente))
+
+--tomar
+
 
 --Segunda Parte____________________________________________________________________________________________________________________
 
@@ -186,7 +209,7 @@ formarListaAmigosDeMisAmigos cliente = formarListaRecursivo (amigos cliente)
 
 jarraPopular espirituosidad cliente
                               | espirituosidad == 0 = cliente
-                              | otherwise = jarraPopular (subtract 1 espirituosidad) (foldl addFriend2 cliente  (unificarLista (formarListaAmigosDeMisAmigos cliente))) 
+                              | otherwise = jarraPopular (subtract 1 espirituosidad) (foldl (flip addFriend) cliente  (unificarLista (formarListaAmigosDeMisAmigos cliente)))
 
 
 
